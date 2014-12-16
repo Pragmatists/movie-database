@@ -10,15 +10,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import tdd.database.config.ApplicationConfig;
 import tdd.database.model.Movie;
 
-@ContextConfiguration(classes = ApplicationConfig.class)
-public class MovieRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
-
-    @PersistenceContext
-    private EntityManager em;
+public class MovieRepositoryTest extends H2Test {
 
     @Autowired
     private MovieRepository movieRepository;
@@ -26,14 +23,11 @@ public class MovieRepositoryTest extends AbstractTransactionalJUnit4SpringContex
     @Test
     public void finds_persisted_movie() {
         Movie movie = persist(new Movie());
+        flushAndClear();
 
         Collection<Movie> movies = movieRepository.findAll();
 
         assertThat(movies).contains(movie);
     }
 
-    private <T> T persist(T entity) {
-        em.persist(entity);
-        return em.merge(entity);
-    }
 }
