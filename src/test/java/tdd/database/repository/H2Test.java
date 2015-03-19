@@ -16,11 +16,6 @@ public abstract class H2Test extends AbstractTransactionalJUnit4SpringContextTes
     @PersistenceContext
     private EntityManager em;
 
-    protected void flushAndClear() {
-        em.flush();
-        em.clear();
-    }
-
     protected <T> T persist(T entity) {
         em.persist(entity);
         return em.merge(entity);

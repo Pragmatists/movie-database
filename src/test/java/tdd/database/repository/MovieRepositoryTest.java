@@ -23,7 +23,6 @@ public class MovieRepositoryTest extends H2Test {
     @Test
     public void finds_persisted_movie() {
         Movie movie = persist(new Movie());
-        flushAndClear();
 
         Collection<Movie> movies = movieRepository.findAll();
 
