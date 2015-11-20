@@ -1,19 +1,16 @@
 package tdd.database.repository;
 
 import static org.assertj.core.api.Assertions.*;
+import static tdd.database.model.MovieBuilder.*;
 
 import java.util.Collection;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-
-import tdd.database.config.ApplicationConfig;
+import tdd.database.SearchCriteria;
 import tdd.database.model.Movie;
+import tdd.database.model.MovieBuilder;
+import tdd.database.model.Studio;
 
 public class MovieRepositoryTest extends H2Test {
 
@@ -21,12 +18,73 @@ public class MovieRepositoryTest extends H2Test {
     private MovieRepository movieRepository;
 
     @Test
-    public void finds_persisted_movie() {
-        Movie movie = persist(new Movie());
+    public void finds_by_exact_name() {
+        Movie dieHard = persist(aMovie().name("Die Hard"));
+        Movie darkNight = persist(aMovie().name("Dark Knight"));
 
-        Collection<Movie> movies = movieRepository.findAll();
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().name("Dark Knight"));
 
-        assertThat(movies).contains(movie);
+        assertThat(movies)
+            .containsOnly(darkNight);
+    }
+
+    @Test
+    public void find_by_year_newer_than() {
+        Movie older = persist(aMovie().year(2000));
+        Movie newer = persist(aMovie().year(2001));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().yearFrom(2001));
+
+        assertThat(movies)
+            .containsOnly(newer);
+
+    }
+
+    @Test
+    public void find_by_year_older_than() {
+        Movie older = persist(aMovie().year(2000));
+        Movie newer = persist(aMovie().year(2001));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().yearTo(2000));
+
+        assertThat(movies)
+            .containsOnly(older);
+
+    }
+
+    @Test
+    public void find_by_year_range() {
+        Movie older = persist(aMovie().year(2000));
+        Movie matching = persist(aMovie().year(2003));
+        Movie newer = persist(aMovie().year(2005));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria()
+                .yearFrom(2001)
+                .yearTo(2004));
+
+        assertThat(movies)
+            .containsOnly(matching);
+    }
+
+    @Test
+    public void find_by_studio() {
+        Studio universal = persist(new Studio("Universal"));
+        Studio paramount = persist(new Studio("Paramount"));
+        Movie fromUniversal = persist(aMovie().studio(universal));
+        Movie fromParamount = persist(aMovie().studio(paramount));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().studio("Universal"));
+
+        assertThat(movies).containsOnly(fromUniversal);
+    }
+
+    private Movie persist(MovieBuilder builder) {
+        return persist(builder.build());
     }
 
 }
