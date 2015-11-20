@@ -95,6 +95,21 @@ public class MovieRepositoryTest extends H2Test {
     }
 
     @Test
+    public void find_by_multiple_criteria() {
+        Movie jaws = persist(aMovie().name("Jaws").year(2000));
+        Movie jaws2 = persist(aMovie().name("Jaws 2").year(2005));
+        Movie matrix = persist(aMovie().name("matrix").year(2005));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria()
+                .yearFrom(2004)
+                .name("jaws"));
+
+        assertThat(movies)
+            .containsOnly(jaws2);
+    }
+
+    @Test
     public void find_by_studio() {
         Studio universal = persist(new Studio("Universal"));
         Studio paramount = persist(new Studio("Paramount"));
