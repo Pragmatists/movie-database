@@ -30,6 +30,30 @@ public class MovieRepositoryTest extends H2Test {
     }
 
     @Test
+    public void finds_by_part_of_the_name() {
+        Movie dieHard = persist(aMovie().name("Die Hard"));
+        Movie darkNight = persist(aMovie().name("Dark Knight"));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().name("night"));
+
+        assertThat(movies)
+            .containsOnly(darkNight);
+    }
+
+    @Test
+    public void finds_by_name_ignoring_case() {
+        Movie dieHard = persist(aMovie().name("Die Hard"));
+        Movie darkNight = persist(aMovie().name("Dark Knight"));
+
+        Collection<Movie> movies = movieRepository
+            .find(new SearchCriteria().name("dark knight"));
+
+        assertThat(movies)
+            .containsOnly(darkNight);
+    }
+
+    @Test
     public void find_by_year_newer_than() {
         Movie older = persist(aMovie().year(2000));
         Movie newer = persist(aMovie().year(2001));

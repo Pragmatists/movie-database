@@ -23,7 +23,7 @@ public class MovieRepositoryImpl implements MovieRepositoryCustom {
 
     private void setParameters(SearchCriteria criteria, TypedQuery<Movie> query) {
         if (criteria.getName() != null) {
-            query.setParameter("name", criteria.getName());
+            query.setParameter("name", "%"+criteria.getName().toLowerCase()+"%");
         }
         if (criteria.getYearFrom() != null) {
             query.setParameter("yearFrom", criteria.getYearFrom());
@@ -40,7 +40,7 @@ public class MovieRepositoryImpl implements MovieRepositoryCustom {
         StringBuilder query = new StringBuilder("select movie " +
             "from Movie movie where 1=1");
         if (criteria.getName() != null) {
-            query.append(" and movie.name=:name");
+            query.append(" and lower(movie.name) like :name");
         }
         if (criteria.getYearFrom() != null) {
             query.append(" and movie.year>=:yearFrom");
